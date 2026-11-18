@@ -4563,6 +4563,8 @@
 
 <script>
 (function() {
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyR600LuAGRZeqIY-ZmiGOdZpBEyYXi4oZ4HmMgW4lcRMjJxDmIzGr_kiiBO3PS-JW0ug/exec';
+
     const modal = document.getElementById('contact-modal');
     const openBtn = document.getElementById('open-contact-modal');
     const closeBtn = document.getElementById('close-contact-modal');
@@ -4579,27 +4581,32 @@
         e.preventDefault();
         status.textContent = 'Sending...';
         status.style.color = '#94A3B8';
-        
+
+        const payload = {
+            name: form.elements['name'].value,
+            contact: form.elements['contact'].value,
+            message: form.elements['message'].value,
+            _gotcha: form.elements['_gotcha'] ? form.elements['_gotcha'].value : ''
+        };
+
         try {
-            const response = await fetch(form.action, {
-                method: form.method,
-                body: new FormData(form),
-                headers: { 'Accept': 'application/json' }
+            await fetch(GAS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
             });
-            if (response.ok) {
-                status.textContent = 'Thank you! Your message has been sent.';
-                status.style.color = '#10B981';
-                form.reset();
-                setTimeout(() => {
-                    modal.classList.remove('active');
-                    status.textContent = '';
-                }, 2000);
-            } else {
-                status.textContent = 'Error sending message. Please use Telegram or Email.';
-                status.style.color = '#EF4444';
-            }
+
+            status.textContent = 'Thank you! Your message has been sent.';
+            status.style.color = '#10B981';
+            form.reset();
+
+            setTimeout(() => {
+                modal.classList.remove('active');
+                status.textContent = '';
+            }, 2000);
         } catch (err) {
-            status.textContent = 'Network error. Please try again.';
+            status.textContent = 'Network error. Please use Telegram or Email.';
             status.style.color = '#EF4444';
         }
     });
