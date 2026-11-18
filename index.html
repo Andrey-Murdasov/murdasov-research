@@ -2240,6 +2240,125 @@
                     --padding-vertical: 2.625rem;
                 }
             }
+
+            /* Плавающая кнопка */
+            .floating-contact-btn {
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                z-index: 999;
+                background-color: #00B4D8;
+                color: #0B0C10;
+                border: none;
+                border-radius: 6px;
+                padding: 12px 20px;
+                font-size: 0.95rem;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 4px 14px rgba(0, 180, 216, 0.35);
+                transition: transform 0.2s ease, background-color 0.2s ease;
+            }
+            .floating-contact-btn:hover {
+                background-color: #0096B4;
+                transform: translateY(-2px);
+            }
+
+            /* Фон модального окна */
+            .research-modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                inset: 0;
+                background-color: rgba(10, 11, 16, 0.85);
+                backdrop-filter: blur(4px);
+                align-items: center;
+                justify-content: center;
+                padding: 16px;
+            }
+            .research-modal.active {
+                display: flex;
+            }
+
+            /* Карточка окна */
+            .research-modal-content {
+                position: relative;
+                background-color: #161822;
+                border: 1px solid #2A2E3F;
+                border-radius: 10px;
+                max-width: 440px;
+                width: 100%;
+                padding: 28px;
+                color: #E2E8F0;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            }
+            .research-modal-content h3 {
+                margin: 0 0 8px 0;
+                font-size: 1.35rem;
+                color: #FFFFFF;
+            }
+            .modal-subtitle {
+                margin: 0 0 20px 0;
+                font-size: 0.9rem;
+                color: #94A3B8;
+                line-height: 1.45;
+            }
+            .research-modal-close {
+                position: absolute;
+                top: 14px;
+                right: 16px;
+                background: none;
+                border: none;
+                color: #94A3B8;
+                font-size: 1.6rem;
+                cursor: pointer;
+                line-height: 1;
+            }
+            .research-modal-close:hover {
+                color: #FFFFFF;
+            }
+
+            /* Поля ввода */
+            .form-group {
+                margin-bottom: 14px;
+            }
+            .research-modal-content input,
+            .research-modal-content textarea {
+                width: 100%;
+                box-sizing: border-box;
+                background-color: #0F1118;
+                border: 1px solid #2A2E3F;
+                border-radius: 6px;
+                padding: 11px 14px;
+                color: #F8FAFC;
+                font-family: inherit;
+                font-size: 0.95rem;
+            }
+            .research-modal-content input:focus,
+            .research-modal-content textarea:focus {
+                outline: none;
+                border-color: #00B4D8;
+            }
+            .modal-submit-btn {
+                width: 100%;
+                background-color: #00B4D8;
+                color: #0B0C10;
+                border: none;
+                border-radius: 6px;
+                padding: 12px;
+                font-size: 1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+            .modal-submit-btn:hover {
+                background-color: #0096B4;
+            }
+            .form-status-msg {
+                margin: 12px 0 0 0;
+                font-size: 0.85rem;
+                text-align: center;
+            }
+
         </style>
         <noscript>
             <style>
@@ -2261,6 +2380,7 @@
                     transition: none !important;
                     filter: none !important;
                 }
+                
             </style>
         </noscript>
     </head>
@@ -4408,6 +4528,83 @@
 </script>
 <noscript><div><img src="https://mc.yandex.ru/watch/109794651" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
+
+<!-- Плавающая кнопка вызова формы -->
+<button id="open-contact-modal" class="floating-contact-btn" type="button">
+    ✉ Contact / Send Inquiry
+</button>
+
+<!-- Модальное окно -->
+<div id="contact-modal" class="research-modal" aria-hidden="true">
+    <div class="research-modal-content">
+        <button id="close-contact-modal" class="research-modal-close" type="button" aria-label="Close">&times;</button>
+        <h3>Direct Inquiry</h3>
+        <p class="modal-subtitle">Briefly describe your data or research challenge — I will review the details and get back to you personally.</p>
+        
+        <!-- Вставьте сюда URL обработчика (action) с вашего сайта /business/ -->
+        <form id="research-contact-form" action="ВАШ_ENDPOINT_ИЗ_BUSINESS" method="POST">
+            <div class="form-group">
+                <input type="text" name="name" placeholder="Your Name / Organization" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="contact" placeholder="Email or Telegram (@username)" required>
+            </div>
+            <div class="form-group">
+                <textarea name="message" rows="4" placeholder="Project or data challenge description..." required></textarea>
+            </div>
+            <!-- Скрытое поле для защиты от спама (honeypot) -->
+            <input type="text" name="_gotcha" style="display:none">
+            
+            <button type="submit" class="modal-submit-btn">Send Request</button>
+            <p id="form-status" class="form-status-msg"></p>
+        </form>
+    </div>
+</div>
+
+<script>
+(function() {
+    const modal = document.getElementById('contact-modal');
+    const openBtn = document.getElementById('open-contact-modal');
+    const closeBtn = document.getElementById('close-contact-modal');
+    const form = document.getElementById('research-contact-form');
+    const status = document.getElementById('form-status');
+
+    openBtn.addEventListener('click', () => modal.classList.add('active'));
+    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        status.textContent = 'Sending...';
+        status.style.color = '#94A3B8';
+        
+        try {
+            const response = await fetch(form.action, {
+                method: form.method,
+                body: new FormData(form),
+                headers: { 'Accept': 'application/json' }
+            });
+            if (response.ok) {
+                status.textContent = 'Thank you! Your message has been sent.';
+                status.style.color = '#10B981';
+                form.reset();
+                setTimeout(() => {
+                    modal.classList.remove('active');
+                    status.textContent = '';
+                }, 2000);
+            } else {
+                status.textContent = 'Error sending message. Please use Telegram or Email.';
+                status.style.color = '#EF4444';
+            }
+        } catch (err) {
+            status.textContent = 'Network error. Please try again.';
+            status.style.color = '#EF4444';
+        }
+    });
+})();
+</script>
 
     </body>
 </html>
